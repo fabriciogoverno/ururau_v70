@@ -1,0 +1,41 @@
+# Dependências
+node_modules/
+venv/
+.venv/
+env/
+
+# Ambiente e senhas
+.env
+.env.*
+!.env.example
+
+# Builds e cache
+dist/
+build/
+.cache/
+.vite/
+__pycache__/
+*.pyc
+
+# Logs
+logs/
+*.log
+
+# Sessões, cookies e WhatsApp
+.session/
+sessions/
+.wwebjs_auth/
+.wwebjs_cache/
+whatsapp-session/
+auth_info_baileys/
+chrome-profile/
+user-data-dir/
+
+# Banco local
+*.sqlite
+*.sqlite3
+*.db
+
+# Sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,111 @@
+{
+  "_versao": "1.0",
+  "_descricao": "Fontes onde a notícia nasce crua — monitoramento prioritário via RSS. Se não existir, o sistema não monitora fontes oficiais adicionais.",
+  "fontes": [
+    {
+      "nome": "DOERJ - Diário Oficial RJ",
+      "url": "https://www.ioerj.com.br/portal/modules/conteudoonline/mostra_edicao.php?",
+      "rss": "",
+      "ativo": false,
+      "peso": 20,
+      "escopo": "estado_rj",
+      "tipo": "diario_oficial",
+      "observacao": "Requer scraping customizado — desativado por padrão",
+      "canal_forcado": "Estado RJ"
+    },
+    {
+      "nome": "ALERJ - Notícias",
+      "url": "https://www.alerj.rj.gov.br/",
+      "rss": "https://www.alerj.rj.gov.br/index.php/noticias?format=feed&type=rss",
+      "ativo": true,
+      "peso": 18,
+      "escopo": "estado_rj",
+      "tipo": "legislativo",
+      "canal_forcado": "Política",
+      "observacao": "Verificar se RSS está ativo"
+    },
+    {
+      "nome": "TCE-RJ",
+      "url": "https://www.tce.rj.gov.br/",
+      "rss": "https://www.tce.rj.gov.br/noticias/rss",
+      "ativo": true,
+      "peso": 15,
+      "escopo": "estado_rj",
+      "tipo": "controle_externo",
+      "canal_forcado": "Estado RJ"
+    },
+    {
+      "nome": "MPRJ",
+      "url": "https://www.mprj.mp.br/",
+      "rss": "https://www.mprj.mp.br/noticias/rss",
+      "ativo": true,
+      "peso": 15,
+      "escopo": "estado_rj",
+      "tipo": "ministerio_publico",
+      "canal_forcado": ""
+    },
+    {
+      "nome": "Prefeitura Campos dos Goytacazes",
+      "url": "https://www.campos.rj.gov.br/",
+      "rss": "https://www.campos.rj.gov.br/noticias/rss",
+      "ativo": true,
+      "peso": 16,
+      "escopo": "local",
+      "tipo": "poder_executivo_municipal",
+      "canal_forcado": "Cidades"
+    },
+    {
+      "nome": "Câmara Municipal de Campos",
+      "url": "https://www.cmcg.rj.gov.br/",
+      "rss": "https://www.cmcg.rj.gov.br/noticias/rss",
+      "ativo": false,
+      "peso": 12,
+      "escopo": "local",
+      "tipo": "legislativo_municipal",
+      "canal_forcado": "Política",
+      "observacao": "Verificar RSS"
+    },
+    {
+      "nome": "Prefeitura São João da Barra",
+      "url": "https://www.sjb.rj.gov.br/",
+      "rss": "",
+      "ativo": false,
+      "peso": 14,
+      "escopo": "local",
+      "tipo": "poder_executivo_municipal",
+      "canal_forcado": "Cidades",
+      "observacao": "Sem RSS identificado — monitorar scraping leve"
+    },
+    {
+      "nome": "Porto do Açu - Prumo",
+      "url": "https://www.portodoacu.com.br/",
+      "rss": "https://www.portodoacu.com.br/noticias/rss",
+      "ativo": true,
+      "peso": 20,
+      "escopo": "local",
+      "tipo": "entidade_estrategica",
+      "canal_forcado": "Economia",
+      "observacao": "Entidade editorial prioritária"
+    },
+    {
+      "nome": "TJRJ",
+      "url": "https://www.tjrj.jus.br/",
+      "rss": "https://www.tjrj.jus.br/noticias/rss",
+      "ativo": true,
+      "peso": 12,
+      "escopo": "estado_rj",
+      "tipo": "poder_judiciario",
+      "canal_forcado": ""
+    },
+    {
+      "nome": "TRE-RJ",
+      "url": "https://www.tre-rj.jus.br/",
+      "rss": "https://www.tre-rj.jus.br/noticias/rss",
+      "ativo": true,
+      "peso": 12,
+      "escopo": "estado_rj",
+      "tipo": "tribunal_eleitoral",
+      "canal_forcado": "Política"
+    }
+  ]
+}

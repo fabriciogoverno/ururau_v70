@@ -1,0 +1,375 @@
+============================================================
+  URURAU - ROBO EDITORIAL  v66
+  Central editorial orientada por SEO, relevancia,
+  investigacao e predicao de audiencia regional
+============================================================
+
+NOVO em v65 (caminho curto C:\\Projetos\\Claude) e em v64 (correcao messagebox parent + form_filler) e em v63 (correcao definitiva + diagnostico):
+  - INICIAR.bat agora abre o painel COM CONSOLE VISIVEL.
+    Se o painel fechar imediatamente, voce ve o erro na tela.
+  - ururau_painel.py com try/except em cada etapa de inicializacao.
+    Codigos de erro distintos (2..6, 99) facilitam diagnostico.
+  - Log automatico em logs/painel_inicializacao.log a cada inicio.
+  - INICIAR_SEM_CONSOLE.bat (opcional) para uso apos validar.
+  - Mensagem de erro em messagebox se algo der errado.
+
+NOVO em v62 (correcao definitiva 10/10) - mantido em v63:
+  - safe_title centralizado (ururau/editorial/safe_title.py):
+    elimina slicing bruto titulo_seo[:89] / titulo_capa[:60].
+    Nenhum titulo termina em palavra cortada ou conector fraco.
+  - validar_limites_titulos: detecta e auto-corrige titulos que
+    ultrapassam 89/60 chars como FIXABLE_FIELD.
+  - PainelRevisao funciona em modo headless (sem Tk) sem AttributeError.
+  - _safe_parent helper: parent valido para messagebox/Toplevel.
+  - can_publish() chamado em workflow.etapa_publicacao antes do CMS.
+  - form_filler detecta "Noticia adicionada com sucesso" mesmo
+    quando a URL nao muda e o form fica vazio.
+  - test suite: 76 testes aprovados (7 + 27 + 30 + 12).
+============================================================
+
+-- O QUE FAZER SE O PAINEL FECHAR SOZINHO -------------------
+
+Em v63, isso nao deveria mais acontecer. Mas se acontecer:
+
+1. Execute INICIAR.bat (a versao COM console visivel).
+2. Leia a mensagem de erro que aparece antes do "Pressione qualquer tecla".
+3. Abra: logs\painel_inicializacao.log para ver o stack completo.
+4. Causas mais comuns:
+   - Codigo 2: rode INSTALAR.bat (falta python-dotenv)
+   - Codigo 3: rode ATUALIZAR_DEPS.bat
+   - Codigo 5: ururau.db corrompido — apague e reinicie
+   - Codigo 6: erro de tkinter — reinstale Python com Tcl/Tk
+============================================================
+
+
+-- COMO INSTALAR (apenas na primeira vez) -------------------
+
+1. Instale o Python 3.10 ou superior:
+   https://www.python.org/downloads/
+   IMPORTANTE: marque Add Python to PATH durante a instalacao!
+
+2. Extraia este ZIP em: C:\Projetos\Claude\ururau_v11\
+
+3. Clique duas vezes em:
+   INSTALAR.bat
+   (aguarde terminar - pode demorar 2 a 5 minutos)
+
+4. Abra o arquivo .env com o Bloco de Notas e preencha:
+   - OPENAI_API_KEY  -> sua chave da OpenAI
+   - URURAU_LOGIN    -> seu login do CMS
+   - URURAU_SENHA    -> sua senha do CMS
+
+
+-- COMO ABRIR O PAINEL -------------------------------------
+
+Clique duas vezes em:
+   INICIAR.bat
+
+O painel abrira em uma janela grafica escura.
+
+
+-- COMO ABRIR O ROBO 24H -----------------------------------
+
+Clique duas vezes em:
+   MONITOR.bat            -> Modo padrao: salva como RASCUNHO
+   MONITOR_PUBLICAR.bat   -> Modo avancado: publica DIRETAMENTE
+
+ATENCAO: MONITOR_PUBLICAR.bat publica materias ao vivo sem
+revisao humana. Use somente apos configurar bem os criterios
+de score e confianca minima no .env.
+
+
+-- ARQUIVOS PRINCIPAIS -------------------------------------
+
+INSTALAR.bat          -> Instala tudo (apenas uma vez)
+INICIAR.bat           -> Abre o painel editorial
+MONITOR.bat           -> Robo 24h em modo rascunho
+MONITOR_PUBLICAR.bat  -> Robo 24h em modo publicacao direta
+ATUALIZAR_DEPS.bat    -> Atualiza as dependencias
+.env                  -> Suas credenciais (PRIVADO - nao compartilhe)
+.env.exemplo          -> Modelo do .env
+fontes_rss.json       -> Lista de feeds RSS para coleta
+ururau.db             -> Banco de dados (criado automaticamente)
+imagens/              -> Fotos processadas
+logs/                 -> Logs do sistema (monitor.log, painel.log)
+
+
+-- DOIS FLUXOS EDITORIAIS ----------------------------------
+
+FLUXO 1: ROBO 24H (MONITOR_PUBLICAR.bat)
+  -> Publicacao DIRETA no CMS (nao salva como rascunho)
+  -> Score minimo mais alto (padrao 48 — configuravel em .env)
+  -> Confianca minima obrigatoria (padrao 70 — configuravel)
+  -> Maximo 4 publicacoes por hora
+  -> Maximo 4 pautas da mesma fonte por ciclo
+  -> Log detalhado de cada decisao (aprovacao/rejeicao + motivo)
+
+FLUXO 2: PAINEL EDITORIAL (INICIAR.bat)
+  -> Salva como RASCUNHO no CMS (requer revisao humana)
+  -> Score minimo menor (padrao 28)
+  -> Humano revisa, edita e decide publicar
+
+
+-- NOVIDADES v61 (CRITICAS — producao) ---------------------
+
+  CORRECAO CRITICA: Falha de API key invalida nao gera mais artigo falso
+    -> Pipeline agora aborta IMEDIATAMENTE se OPENAI_API_KEY e invalida
+    -> validate_openai_config() executada ANTES de qualquer chamada a API
+    -> corpo_materia fica VAZIO — nunca usa fragmento de fonte como artigo
+    -> classify_openai_exception() detecta erros 401, 429, timeout
+    -> Novo status: status_validacao='erro_configuracao' (CONFIG_ERROR)
+
+  CORRECAO CRITICA: Remocao do fallback de fragmento de fonte
+    -> redacao.py nao usa mais resumo_origem como corpo quando pipeline falha
+    -> Artigos sem corpo gerado ficam com corpo_materia=""
+    -> Identificados como EXTRACTION_ERROR ou CONFIG_ERROR
+
+  NOVO: Limpeza aprimorada de fonte (bloco-level)
+    -> separar_fonte_de_metadados() usa maquina de estados por blocos
+    -> Remove "Noticias relacionadas" + bloco inteiro de links abaixo
+    -> Remove "Leia tambem", "Veja tambem", "Versao em audio", "Newsletter"
+    -> Remove URLs soltas, publicidade, timestamps de secao
+    -> Preserva conteudo editorial legítimo (titulos de secao reais)
+
+  NOVO: validate_source_sufficiency() — validacao de fonte
+    -> Detecta fonte vazia apos limpeza
+    -> Detecta fonte suspeita (fonte limpa muito menor que raw original)
+    -> Retorna EXTRACTION_ERROR para fontes invalidas
+
+  NOVO: Categorias de erro ampliadas
+    -> CONFIG_ERROR: falha de API/sistema — nao e problema editorial
+    -> EXTRACTION_ERROR: fonte invalida ou vazia
+    -> Separadas de EDITORIAL_BLOCKER para acao diferente na UI
+
+  NOVO: UI de Revisao Editorial atualizada
+    -> Filtros "Erro de Config" (laranja) e "Extracao" (roxo) na fila
+    -> Badge visual destacado para CONFIG_ERROR e EXTRACTION_ERROR
+    -> Botao "Reprocessar geracao" para reenviar ao pipeline
+    -> Botao "Abrir Config" com orientacoes de como corrigir API key
+    -> _e_para_revisao() reconhece 'erro_configuracao' e 'erro_extracao'
+
+  NOVO: Gate de publicacao reforçado (can_publish)
+    -> Bloqueia CONFIG_ERROR e EXTRACTION_ERROR em workflow.py
+    -> Bloqueia corpo_materia vazio (mesmo sem categoria de erro)
+    -> Aprovacao manual NAO bypassa CONFIG_ERROR
+    -> receita_editorial.can_publish() fallback tambem atualizado
+    -> etapa_persistir_materia: CONFIG_ERROR nunca avanca para PRONTA
+
+  NOVO: 27 testes automatizados (tests/test_config_e_extracao.py)
+    -> C1: validate_openai_config() detecta key invalida/placeholder
+    -> C2: corpo_materia fica vazio em CONFIG_ERROR (nao usa fonte)
+    -> C3: can_publish() bloqueia CONFIG_ERROR
+    -> C4: can_publish() bloqueia EXTRACTION_ERROR
+    -> C5: can_publish() bloqueia status='erro_configuracao'
+    -> C6: can_publish() bloqueia corpo vazio
+    -> C7: separar_fonte remove "Noticias relacionadas" corretamente
+    -> C8: validate_source_sufficiency detecta fontes invalidas
+    -> C9: receita_editorial fallback tambem bloqueia CONFIG_ERROR
+    -> C10: workflow nao marca PRONTA para CONFIG/EXTRACTION ERROR
+
+-- NOVIDADES v43 -------------------------------------------
+
+  NOVO: Intel Editorial — camada aditiva de inteligencia sobre scoring
+    -> intel_editorial.py: 13 sub-scores extras (Porto do Acu, ALERJ, SEO,
+       triangulacao regional, investigativo, urgencia, protocolo de verdade)
+    -> Adiciona ate +40 pontos ao score base sem substituir o existente
+    -> Fallback total: se falhar, score base nao e afetado
+
+  NOVO: Watchlists editoriais expandidas (watchlists_editoriais.json)
+    -> 70+ deputados estaduais ALERJ com pesos configurados
+    -> Protagonistas executivos com contexto geografico
+    -> Pre-candidatos ao governo RJ 2026
+    -> Termos investigativos, transparencia, servico publico
+    -> Triangulacao estrategica: deputado + regiao NF + verbas = boost maximo
+
+  NOVO: Aliases editoriais com contexto geografico (aliases_editoriais.json)
+    -> Neto = Volta Redonda (contexto obrigatorio)
+    -> Capitao Nelson = Sao Goncalo
+    -> Axel Grael = Niteroi
+    -> Fabiano Horta = Marica
+    -> Welberth Rezende = Macae
+    -> Lucinha = somente com contexto politico (ALERJ, deputada, etc.)
+
+  NOVO: Consultas Google News por grupos tematicos (consultas_google_news.json)
+    -> 14 grupos: campos_local, norte_fluminense, porto_do_acu, rj_politica,
+       alerj, deputados_rj, pre_candidatos, servico, alto_trafego, etc.
+    -> Painel e Monitor usam automaticamente essa lista
+
+  NOVO: Fontes oficiais prioritarias (fontes_oficiais_prioritarias.json)
+    -> ALERJ RSS, TCE-RJ, MPRJ, Prumo/Porto do Acu, TRE-RJ, TJRJ
+    -> Ativadas individualmente (campo "ativo": true/false)
+    -> Flag sinal_fonte_oficial = true para scoring diferenciado
+
+  NOVO: Aba "Fonte" no painel (Leitura da Fonte Original)
+    -> Busca o texto completo do artigo na URL de origem
+    -> Destaca termos das watchlists encontrados
+    -> Mostra score intel do texto completo
+    -> Cache 30 min para nao sobrecarregar as fontes
+    -> Botao Recarregar para forcar nova busca
+
+  NOVO: Badges de Intel na fila do painel
+    -> [★ TRIANG] = triangulacao regional ativa
+    -> [⚡ ALERTA] = urgencia detectada por intel
+    -> [⚠ REVISAR] = protocolo de verdade falhou (nao autopublica)
+    -> [+NNseo]  = score intel adicional alto
+
+  NOVO: Tiers de publicacao expandidos no Monitor 24h
+    -> Score 90+: publicacao direta imediata
+    -> Score 80-89: direta se canal=alta confianca
+    -> Score 65-79: painel como prioridade
+    -> Protocolo de verdade obrigatorio antes de qualquer autopublicacao
+
+  NOVO: Modulo leitura_fonte.py
+    -> Extrai texto limpo de qualquer URL de noticia
+    -> Detecta termos das watchlists no texto completo
+    -> Aplica intel editorial no texto completo para maior precisao
+
+  CRITICO: Dois fluxos editoriais separados com criterios distintos
+    -> Robo 24h: publicacao direta com score/confianca mais exigentes
+    -> Painel: rascunho para revisao humana
+
+  NOVO: Score editorial multidimensional (17 dimensoes)
+    -> score_base, score_frescor, score_regionalidade
+    -> score_impacto_politico, score_impacto_estadual_rj
+    -> score_impacto_policial, score_prioridade_esportes
+    -> score_prioridade_saude, score_prioridade_rural
+    -> score_potencial_audiencia, score_aderencia_canal
+    -> score_diversidade_fonte, score_confianca_autopub
+    -> + penalidades: horario, fonte repetida, conteudo fraco, etc.
+
+  NOVO: Score de confianca separado para autopublicacao 24h
+    -> score_editorial: decide se entra na fila do painel
+    -> score_autopub: decide se pode ser publicado diretamente
+    -> Apenas pautas com confianca >= CONFIANCA_MIN_AUTOPUB sao publicadas 24h
+
+  NOVO: Pesos configuráveis via variaveis de ambiente no .env
+    -> W_POLITICA_RJ, W_ESTADO_RJ, W_POLICIA, W_ESPORTES, etc.
+    -> SCORE_MIN_RASCUNHO (padrao 28), SCORE_MIN_AUTOPUBLICACAO (padrao 48)
+    -> CONFIANCA_MIN_AUTOPUB (padrao 70)
+    -> MAX_POR_CANAL (padrao 4), MAX_POR_FONTE_CICLO (padrao 4)
+    -> MAX_PUB_HORA_MONITOR (padrao 4)
+
+  NOVO: Cobertura minima garantida de Saude e Rural
+    -> Sistema garante pelo menos 3 candidatas de Saude por ciclo
+    -> Sistema garante pelo menos 2 candidatas de Rural por ciclo
+    -> (quando disponíveis nos feeds — nao e publicacao obrigatoria)
+
+  NOVO: Log de decisao transparente
+    -> Cada pauta tem seu motivo de aprovacao ou rejeicao registrado
+    -> Ver arquivo logs/monitor.log para historico completo
+
+  NOVO: Canais oficiais restritos (17 canais exatos)
+    -> Bizarro, Brasil e Mundo, Carnaval, Cidades, Curiosidades
+    -> Economia, Educacao, Entretenimento, Esportes, Estado RJ
+    -> Opiniao, Podcast, Policia, Politica, Rural, Saude, Tecnologia
+    -> Nenhuma pauta vai para canal nao reconhecido
+
+  NOVO: Aba "Estilo de Escrita" no Config
+    -> Diretrizes positivas (o que o robo deve fazer)
+    -> Exclusoes (o que evitar — assuntos, fontes, formatos)
+    -> Exemplos de referencia (materias modelo para o tom editorial)
+
+
+-- NOVIDADES v34 -------------------------------------------
+
+  NOVO: Console duplo e aberto por padrao na inicializacao
+  NOVO: Miniaturas das imagens na fila de pautas
+  NOVO: Aba Estilo de Escrita no Config (diretrizes, exclusoes, exemplos)
+  NOVO: Maximo 4 pautas por canal editorial por ciclo
+  NOVO: Classificacao de canal melhorada (menos erros de editoria)
+
+
+-- NOVIDADES v33 -------------------------------------------
+
+  NOVO: Navegacao por teclado na fila de pautas
+    -> Setas para cima/baixo para navegar
+    -> Enter ou Espaco para selecionar/abrir
+    -> Page Up/Down: pular 5 pautas
+    -> Home/End: primeira/ultima pauta
+  NOVO: Atalhos globais Ctrl+R (Redigir), Ctrl+P (Preview),
+    Ctrl+G (Coletar), Ctrl+D (Descartar), Ctrl+M (Manual),
+    Esc (foco na fila)
+  NOVO: Botao "Atalhos" mostra tabela de atalhos
+
+
+-- NOVIDADES v32 -------------------------------------------
+
+  NOVO: Canal editorial selecionado automaticamente no CMS
+  NOVO: Seletor de canal no Preview
+  NOVO: Link da fonte preenchido automaticamente
+  NOVO: INICIAR.bat oculta a janela do console
+
+
+-- BOTOES DO PAINEL ----------------------------------------
+
+  Atualizar  -> Recarrega a fila de pautas
+  Coletar    -> Busca novas pautas nos feeds RSS
+  Redigir    -> Gera a materia da pauta selecionada
+  Copydesk   -> Revisao profissional com IA
+  Preview    -> Editar materia + escolher imagem + modo rascunho/publicar
+  Publicar   -> Envia ao CMS (padrao: rascunho)
+  Imagem     -> Busca imagem automatica para a pauta
+  Manual     -> Adiciona pauta manualmente
+  Descartar  -> Descarta a pauta selecionada
+  Console    -> Mostra/esconde log interno do sistema
+
+
+-- FLUXO RECOMENDADO (PAINEL) -------------------------------
+
+1. Clique em Coletar
+2. Selecione uma pauta na lista (use setas do teclado)
+3. Verifique a aba Checagem
+4. Clique em Redigir (aguarde IA gerar a materia)
+5. Revise as abas Materia e Risco
+6. Clique em Preview para editar e escolher imagem
+7. No Preview: escolha Rascunho (recomendado) ou Publicar!
+8. Clique "Enviar ao CMS"
+
+
+-- VARIAVEIS DE AMBIENTE (.env) ----------------------------
+
+# Credenciais
+OPENAI_API_KEY=sk-...
+URURAU_LOGIN=seu_login
+URURAU_SENHA=sua_senha
+
+# Pesos de score base (opcional — valores padrao ja configurados)
+W_POLITICA_RJ=30
+W_ESTADO_RJ=25
+W_POLICIA=22
+W_ESPORTES=18
+W_SAUDE=14
+W_RURAL=12
+
+# Limites operacionais
+SCORE_MIN_RASCUNHO=28
+SCORE_MIN_AUTOPUBLICACAO=48
+CONFIANCA_MIN_AUTOPUB=70
+MAX_POR_CANAL=4
+MAX_POR_FONTE_CICLO=4
+MAX_PUB_HORA_MONITOR=4
+
+# Intel editorial v43 — pesos adicionais
+W_PORTO_DO_ACU=18
+W_WATCHLIST_ALERJ=10
+W_INTENCAO_BUSCA=8
+W_INVESTIGATIVO_TRANSPARENCIA=12
+W_TRIANGULACAO_REGIONAL=15
+W_TEMAS_EXPLOSIVOS=20
+W_REGIONAL_CAMPOS=20
+W_REGIONAL_NORTE_FLUMINENSE=15
+W_ENTIDADE_PORTO_DO_ACU=18
+
+# Tiers do monitor 24h v43
+SCORE_MONITOR_DIRETO_IMEDIATO=90
+SCORE_MONITOR_DIRETO_CONFIANCA=80
+SCORE_MONITOR_PAINEL_PRIORIDADE=65
+
+# Feature flags de intel (desabilitar se precisar)
+ENABLE_WATCHLISTS=true
+ENABLE_ALIASES=true
+ENABLE_TRIANGULACAO_REGIONAL=true
+ENABLE_PROTOCOLO_VERDADE=true
+ENABLE_LEITURA_FONTE=true
+
+# Estilo editorial (configur
