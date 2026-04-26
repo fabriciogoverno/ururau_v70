@@ -31,7 +31,7 @@ auth_info_baileys/
 chrome-profile/
 user-data-dir/
 
-# Banco local
+# Bancos locais
 *.sqlite
 *.sqlite3
 *.db
