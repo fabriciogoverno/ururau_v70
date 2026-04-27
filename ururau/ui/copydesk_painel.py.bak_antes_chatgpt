@@ -1,4 +1,4 @@
-﻿"""
+"""
 ui/copydesk_painel.py - Painel Copydesk Item-por-Item (v66)
 
 Este painel substitui o antigo JanelaCopydesk visual side-by-side.
@@ -52,7 +52,7 @@ FONTE_PEQUENA = ("Helvetica", 9)
 FONTE_MONO    = ("Courier New", 9)
 
 
-# â”€â”€â”€ Engine de Sugestoes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Engine de Sugestoes ────────────────────────────────────────────────────
 
 # Limites obrigatorios Ururau
 LIMITES = {
@@ -449,7 +449,7 @@ def gerar_sugestoes_paragrafos(corpo: str) -> list[dict]:
     for i, par in enumerate(paragrafos):
         problemas = []
         # Travessao
-        if "â€”" in par or "â€“" in par:
+        if "—" in par or "–" in par:
             problemas.append("contem travessao (substitua por virgula/dois pontos)")
         # Expressao generica
         par_low = par.lower()
@@ -475,7 +475,7 @@ def gerar_sugestoes_paragrafos(corpo: str) -> list[dict]:
     return out
 
 
-# â”€â”€â”€ Painel Copydesk Item-por-Item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Painel Copydesk Item-por-Item ──────────────────────────────────────────
 
 class JanelaCopydeskItem(tk.Toplevel if _TK_DISPONIVEL else object):
     """
@@ -823,3 +823,4 @@ class JanelaCopydeskItem(tk.Toplevel if _TK_DISPONIVEL else object):
                   command=_salvar_par, bg=COR_VERDE, fg="white",
                   relief="flat", padx=8, pady=4, cursor="hand2",
                   font=("Helvetica", 9, "bold")).pack(side="left", padx=4)
+        tk.
