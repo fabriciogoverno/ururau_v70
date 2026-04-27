@@ -196,3 +196,48 @@ def validar_limites_titulos(dados: dict) -> list[dict]:
             })
 
     return erros
+
+
+# ── Verificação de segurança do título ──────────────────────────────────────
+
+# Padrões que tornam um título inseguro para publicação
+_PAT_TITULO_INSEGURO = re.compile(
+    r"(?:\bURGENTE\b|\bEXCLUSIVO\b|\bBOMBA\b|\bATENÇÃO\b|\bALERTA\b|"
+    r"\bURGENT\b|\bBREAKING\b|\bALERT\b|"
+    r"\b(?:clique|click)\s+aqui|\b(?:saiba|descubra)\s+agora|"
+    r"\!{2,}|\?{2,}|\.{3,}|\b fake \b|\b mentira \b|\b hoax \b)",
+    re.IGNORECASE,
+)
+
+
+def verificar_titulo_seguro(titulo: str) -> tuple[bool, str]:
+    """
+    Verifica se um título é seguro para publicação.
+    
+    Retorna:
+        (bool: seguro, str: motivo caso não seja seguro)
+    """
+    if not titulo or not titulo.strip():
+        return False, "título vazio"
+    
+    t = titulo.strip()
+    
+    # Muito curto
+    if len(t) < 10:
+        return False, f"título muito curto ({len(t)} chars)"
+    
+    # Muito longo
+    if len(t) > LIMITE_TITULO_SEO:
+        return False, f"título excede limite SEO ({len(t)} > {LIMITE_TITULO_SEO})"
+    
+    # Padrões inseguros
+    if _PAT_TITULO_INSEGURO.search(t):
+        match = _PAT_TITULO_INSEGURO.search(t)
+        return False, f"padrão inseguro detectado: '{match.group(0)}'"
+    
+    # Termina em pontuação solta ou palavra fraca
+    trunc = _strip_pontuacao_final(t)
+    if _termina_em_palavra_fraca(trunc):
+        return False, "título termina em palavra funcional fraca"
+    
+    return True, ""

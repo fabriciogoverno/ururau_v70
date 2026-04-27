@@ -236,7 +236,7 @@ def extract_essential_facts(
     # Números, percentuais, valores
     numeros = re.findall(
         r"\b\d+[.,]?\d*\s*(?:%|por cento|R\$|reais?|mil|milhões?|bilhões?|"
-        r"horas?|dias?|anos?|meses?|vagas?|toneladas?|unidades?|km|metros?)\b",
+        r"horas?|dias?|anos?|meses?|vagas?|toneladas?|unidades?|km|metros?)",
         texto, re.IGNORECASE
     )
     # Remove duplicatas mantendo a ordem

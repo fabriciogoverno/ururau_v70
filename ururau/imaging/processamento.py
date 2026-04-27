@@ -26,6 +26,7 @@ from ururau.imaging.busca import selecionar_melhor_imagem
 # Dimensões alvo para publicação
 LARGURA_ALVO = 900
 ALTURA_ALVO  = 675
+RESOLUCAO_PADRAO = (LARGURA_ALVO, ALTURA_ALVO)
 QUALIDADE_PROCESSAMENTO = 85  # qualidade usada no processamento interno (final usa settings)
 
 
@@ -133,10 +134,13 @@ def processar_imagem(
 
         print(f"[IMG] Imagem processada: {caminho_final}")
         return caminho_final
-
     except Exception as e:
         print(f"[IMG] Falha ao processar imagem ({caminho_original}): {e}")
         return None
+
+
+# Alias para compatibilidade com testes e imports externos
+processar_imagem_ururau = processar_imagem
 
 
 def validar_imagem(caminho: str) -> tuple[bool, dict]:

@@ -66,6 +66,47 @@ _BLOCOS_DESCARTAVEIS_EXATOS = {
     "continua após",
     "continua depois",
     "scroll to continue",
+    # ── Paywall / assinatura (Folha, Estadão, Globo, etc.) ────────────────────
+    "benefício do assinante",
+    "beneficio do assinante",
+    "você tem 7 acessos por dia",
+    "voce tem 7 acessos por dia",
+    "assinantes podem liberar",
+    "já é assinante?",
+    "ja e assinante?",
+    "faça seu login",
+    "faca seu login",
+    "assine a folha",
+    "assine o estadão",
+    "assine o globo",
+    "assine agora",
+    "assine já",
+    "assine ja",
+    "copiar link",
+    "salvar para ler depois",
+    "salvar artigos",
+    "recurso exclusivo",
+    "recurso exclusivo para assinantes",
+    "assine ou faça login",
+    "assine ou faca login",
+    "diminuir fonte",
+    "aumentar fonte",
+    "ouvir o texto",
+    "ouça o texto",
+    "ouca o texto",
+    "modo leitura",
+    "texto apenas para assinantes",
+    "conteúdo exclusivo",
+    "conteudo exclusivo",
+    "seja assinante",
+    "torne-se assinante",
+    "torne-se um assinante",
+    "acesso ilimitado",
+    "assinante digital",
+    "plano digital",
+    "plano anual",
+    "plano mensal",
+    "desconto para assinantes",
 }
 
 # Padrão para detectar linha que é cabeçalho de "notícias relacionadas" e similares
@@ -76,7 +117,7 @@ _BLOCO_DESCARTAVEL_PAT = re.compile(
     r"acesse\s+(?:também|tambem)|"
     r"mais\s+(?:notícias|noticias|artigos?)|"
     r"versão\s+em\s+áudio|versao\s+em\s+audio|"
-    r"ouça\s+esta|ouca\s+esta|"
+    r"ouça\s+(?:esta|o\s+texto)|ouca\s+(?:esta|o\s+texto)|"
     r"assista\s+(?:também|tambem)|"
     r"compartilh[ae]r?|partilhar|"
     r"siga[- ](?:nos|nossas?|o\s+portal)|"
@@ -84,7 +125,27 @@ _BLOCO_DESCARTAVEL_PAT = re.compile(
     r"newsletter|inscreva[- ]se|"
     r"publicidade|advertisement|"
     r"continua\s+(?:após|depois|after)|"
-    r"baixe\s+o\s+(?:aplicativo|app))",
+    r"baixe\s+o\s+(?:aplicativo|app)|"
+    # Paywall / assinatura
+    r"benefício\s+do\s+assinante|beneficio\s+do\s+assinante|"
+    r"você\s+tem\s+\d+\s+acessos|voce\s+tem\s+\d+\s+acessos|"
+    r"assinantes\s+podem\s+liberar|"
+    r"já\s+é\s+assinante|ja\s+e\s+assinante|"
+    r"faça\s+seu\s+login|faca\s+seu\s+login|"
+    r"assine\s+(?:a\s+folha|o\s+estadão|o\s+globo|agora|já|ja)|"
+    r"copiar\s+link|"
+    r"salvar\s+(?:para\s+ler\s+depois|artigos)|"
+    r"recurso\s+exclusivo|"
+    r"assine\s+ou\s+faça\s+login|assine\s+ou\s+faca\s+login|"
+    r"diminuir\s+fonte|aumentar\s+fonte|"
+    r"ouvir\s+o\s+texto|ouça\s+o\s+texto|ouca\s+o\s+texto|"
+    r"modo\s+leitura|"
+    r"texto\s+apenas\s+para\s+assinantes|"
+    r"conteúdo\s+exclusivo|conteudo\s+exclusivo|"
+    r"seja\s+assinante|torne[- ]?se\s+(?:um\s+)?assinante|"
+    r"acesso\s+ilimitado|assinante\s+digital|"
+    r"plano\s+(?:digital|anual|mensal)|"
+    r"desconto\s+para\s+assinantes)",
     re.IGNORECASE,
 )
 
