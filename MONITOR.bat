@@ -1,12 +1,12 @@
 @echo off
 chcp 65001 >nul
-title Ururau v62 - Monitor 24h
 setlocal
 cd /d "%~dp0"
+title Ururau v70 - Monitor 24h Rascunho
 
 echo.
 echo ============================================================
-echo   URURAU v62 - ROBO DE MONITORAMENTO 24h (rascunhos)
+echo   URURAU v70 - ROBO DE MONITORAMENTO 24h (rascunhos)
 echo ============================================================
 echo.
 
@@ -18,12 +18,43 @@ if not exist "venv\Scripts\activate.bat" (
     exit /b 1
 )
 
+:: --- Verifica .env ---
+if not exist ".env" (
+    echo [ERRO] .env nao encontrado.
+    echo Execute INICIAR.bat primeiro para configurar.
+    pause
+    exit /b 1
+)
+
 :: --- Ativa venv ---
-call venv\Scripts\activate.bat
-if errorlevel 1 (
+call "venv\Scripts\activate.bat" || (
     echo [ERRO] Falha ao ativar venv.
     pause
     exit /b 1
 )
 
-:: --- V
+:: --- Cria pasta de logs se nao existir ---
+if not exist "logs" mkdir "logs"
+
+:: --- Verifica dependencias criticas ---
+python -c "import feedparser" 2>nul || (
+    echo [AVISO] feedparser nao instalado. Instalando...
+    pip install feedparser -q
+)
+python -c "import playwright" 2>nul || (
+    echo [AVISO] playwright nao instalado. Instalando...
+    pip install playwright -q
+    python -m playwright install chromium
+)
+
+:: --- Executa monitor em modo rascunho (sem publicacao no CMS) ---
+echo [INFO] Iniciando monitor 24h em modo RASCUNHO...
+echo [INFO] Nenhuma publicacao real sera feita no CMS.
+echo.
+python ururau_monitor.py --cms-nao
+
+echo.
+echo ============================================================
+echo   Monitor finalizado.
+echo ============================================================
+pause

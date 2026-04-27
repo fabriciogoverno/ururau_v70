@@ -36,6 +36,10 @@ MODELO_OPENAI   = _str("OPENAI_MODEL", "gpt-4.1-mini")
 SITE_LOGIN_URL  = _str("SITE_LOGIN_URL",  "https://www.ururau.com.br/acessocpainel/")
 SITE_NOVA_URL   = _str("SITE_NOVA_URL",   "https://www.ururau.com.br/acessocpainel/noticias/nova/")
 
+# ── Segurança: confirmação para publicação real ────────────────────────────────
+_URURAU_PUB_CONF = _str("URURAU_PUBLICACAO_REAL_CONFIRMADA", "NAO").upper().strip()
+PUBLICACAO_REAL_CONFIRMADA = _URURAU_PUB_CONF in ("SIM", "YES", "1", "TRUE")
+
 # ── Playwright ────────────────────────────────────────────────────────────────
 HEADLESS        = _bool("HEADLESS", False)
 SLOW_MO         = _int("SLOW_MO", 150)

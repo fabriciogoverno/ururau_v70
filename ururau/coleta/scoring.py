@@ -445,6 +445,7 @@ def classificar_canal(titulo: str, resumo: str) -> tuple[str, str, int]:
     Aplica regras especiais para casos ambíguos.
     """
     texto = (titulo + " " + resumo).lower()
+    texto_low = texto  # alias para compatibilidade com regras existentes
 
     pontuacao: dict[str, int] = {c: 0 for c in _KW_CANAL}
 
@@ -453,9 +454,56 @@ def classificar_canal(titulo: str, resumo: str) -> tuple[str, str, int]:
             if termo.lower() in texto:
                 pontuacao[canal] += 1
 
-    # ── Regras de desambiguação — evita falsos positivos ─────────────────────
-    # PRINCÍPIO: canal específico de conteúdo > Política genérica
-    texto_low = texto  # já é .lower()
+    # ── Regra determinística: política eleitoral RJ / pesquisa eleitoral ──────
+    # Detecta pesquisas eleitorais, candidatos, intenção de voto etc.
+    if any(t in texto_low for t in [
+        "quaest", "genial investimentos", "pesquisa eleitoral",
+        "intenção de voto", "intenções de voto", "governo do rj",
+        "eduardo paes", "douglas ruas", "garotinho", "wilson witzel",
+        "cláudio castro", "benedita da silva", "marcelo freixo",
+        "flávio bolsonaro", "rodolfo paiva", "tarcísio", "tarcisio",
+        "eleições 2026", "eleicao 2026", "candidato ao governo",
+        "disputa pelo governo", "corrida eleitoral", "primeiro turno",
+        "segundo turno", "margem de erro", "registrado na justiça eleitoral",
+        "tse", "tre-rj", "justiça eleitoral",
+    ]):
+        return "Política", "alta", 8
+
+    # ── Regra determinística: clima / previsão do tempo → Cidades ────────────
+    if any(t in texto_low for t in [
+        "previsão do tempo", "previsao do tempo", "chuvas", "temperaturas",
+        "massa de ar", "frente fria", "calor intenso", "onda de calor",
+        "tempo deve", "tempo vai", "semana com", "dias ensolarados",
+        "alerta de temporais", "volume de chuva", "índice pluviométrico",
+    ]):
+        # Se menciona RJ especificamente → Estado RJ, senão Cidades
+        if any(t in texto_low for t in ["rio de janeiro", "estado do rj", "rj ", "norte fluminense"]):
+            return "Estado RJ", "alta", 5
+        return "Cidades", "alta", 5
+
+    # ── Regra determinística: Brasil e Mundo (geopolítica / EUA / Trump) ─────
+    if any(t in texto_low for t in [
+        "trump", "biden", "casa branca", "pentágono", "pentagono",
+        "departamento de estado", "eua ", "estados unidos",
+        "reino unido", "inglaterra", " frança ", " alemanha ", " rússia ",
+        "china ", "irã ", "israel ", "ucrânia", "onu ", "nato", "otan",
+        "g7", "g20", "oms", "opep", "conflito internacional",
+        "guerra no oriente", "guerra na ucrânia", "ataque a tiros",
+        "tiroteio", "assassinato de", "embassy", "embaixada",
+    ]):
+        return "Brasil e Mundo", "alta", 6
+
+    # ── Regra determinística: polícia regional (Campos / Norte Fluminense) ────
+    if any(t in texto_low for t in [
+        "polícia encontra", "policia encontra", "operação policial",
+        "operacao policial", "pinos de cocaína", "pinos de cocaina",
+        "tonel enterrado", "tráfico em campos", "trafico em campos",
+        "bope", "core", "draco", "denarc",
+    ]) and any(t in texto_low for t in [
+        "campos", "goytacaz", "norte fluminense", "macaé", "são joão da barra",
+        "são francisco", "quissamã", "italva", "natividade",
+    ]):
+        return "Polícia", "alta", 6
 
     # Futebol, esporte → Esportes (anula Política completamente)
     if any(t in texto_low for t in [

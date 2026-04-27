@@ -562,9 +562,10 @@ def generate_ururau_article(
     bloqueado = any(isinstance(e, dict) and e.get("categoria") == "EDITORIAL_BLOCKER" for e in erros_total)
     m.auditoria_bloqueada = bool(bloqueado)
     m.auditoria_aprovada  = not bloqueado
-    m.status_validacao = "aprovado" if not bloqueado and score_qualidade >= 90 else (
-        "reprovado" if bloqueado else "pendente"
-    )
+    # v70-hotfix: status_validacao deve ser CONSISTENTE com auditoria_bloqueada.
+    # Se não há BLOCKER, a matéria está aprovada pela auditoria.
+    # O score_qualidade afeta a confiança, não o status binário.
+    m.status_validacao = "reprovado" if bloqueado else "aprovado"
     m.status_publicacao_sugerido = ("publicar" if m.status_validacao == "aprovado"
                                      else "salvar_rascunho")
     m.revisao_humana_necessaria  = m.status_validacao != "aprovado"
