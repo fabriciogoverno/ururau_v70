@@ -39,3 +39,7 @@ user-data-dir/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Backups locais
+_backup_*/
+*.bak_*
