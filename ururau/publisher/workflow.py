@@ -39,6 +39,59 @@ def _uid_para_pauta(link: str, titulo: str) -> str:
     return hashlib.md5(base.encode("utf-8")).hexdigest()[:16]
 
 
+# ── Publicação async via Playwright ─────────────────────────────────────────
+
+async def _publicar_async(
+    materia: Materia,
+    imagem: Optional[ImagemDados],
+    usuario: str,
+    senha: str,
+    rascunho: bool = True,
+) -> bool:
+    """
+    Inicia Playwright, faz login no CMS e preenche o formulário de publicação.
+
+    Args:
+        materia:  objeto Materia com campos preenchidos.
+        imagem:   ImagemDados ou None.
+        usuario:  login do CMS.
+        senha:    senha do CMS.
+        rascunho: True → salva rascunho; False → publica direto.
+
+    Returns:
+        True se a publicação/rascunho foi enviada com sucesso.
+    """
+    try:
+        from playwright.async_api import async_playwright
+        from ururau.publisher.form_filler import fazer_login, preencher_e_publicar
+    except ImportError as e:
+        print(f"[PUBLICACAO] Dependência ausente: {e}")
+        return False
+
+    print(f"[PUBLICACAO] Iniciando browser (rascunho={rascunho})...")
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=False)
+            context = await browser.new_context()
+            page = await context.new_page()
+
+            # Login
+            login_ok = await fazer_login(page, usuario, senha)
+            if not login_ok:
+                print("[PUBLICACAO] Falha no login.")
+                await browser.close()
+                return False
+
+            # Preencher e publicar / rascunho
+            pub_ok = await preencher_e_publicar(materia, imagem, page, rascunho=rascunho)
+
+            await browser.close()
+            return pub_ok
+    except Exception as e:
+        print(f"[PUBLICACAO] Erro no browser: {e}")
+        return False
+
+
 # ── Gate de publicação — função central obrigatória ──────────────────────────
 
 def can_publish(artigo: dict, modo: str = "panel") -> tuple[bool, str]:

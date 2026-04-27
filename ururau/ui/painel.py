@@ -559,9 +559,9 @@ class FilaPautas(tk.Frame):
             # Limita cache para não vazar memória
             if len(self._thumbs) > 120:
                 self._thumbs = self._thumbs[-80:]
-            self.after(0, lambda: lbl.config(image=ftk, text=""))
+            self.after(0, lambda: (lbl.winfo_exists() and lbl.config(image=ftk, text="")))
         except ImportError:
-            self.after(0, lambda: lbl.config(text="📷"))
+            self.after(0, lambda: (lbl.winfo_exists() and lbl.config(text="📷")))
         except Exception:
             pass
 
